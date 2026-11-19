@@ -80,7 +80,10 @@ def _from_supabase() -> pd.DataFrame:
     url = _setting("SUPABASE_URL").rstrip("/")
     key = _setting("SUPABASE_ANON_KEY")
     table = _setting("SUPABASE_TABLE", "student_performance")
-    headers = {"apikey": key, "Authorization": f"Bearer {key}"}
+    # Kunci baru (sb_publishable_/sb_secret_) cukup di header apikey; kunci lama (JWT) juga di Authorization
+    headers = {"apikey": key}
+    if key.startswith("eyJ"):
+        headers["Authorization"] = f"Bearer {key}"
     rows, step, start = [], 1000, 0
     while True:  # PostgREST membatasi 1000 baris per request -> paging
         r = requests.get(f"{url}/rest/v1/{table}?select=*",
