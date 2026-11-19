@@ -12,6 +12,7 @@ dashboard-siswa/
 ├── src/
 │   ├── data_loader.py             # Ambil data: csv | gsheet | supabase + cache TTL + cleaning
 │   ├── analysis.py                # Statistik: pengaruh faktor, profil kelompok, insight otomatis
+│   ├── model.py                   # Model regresi untuk halaman Simulasi nilai
 │   └── charts.py                  # Grafik Plotly (tiap titik membawa customdata untuk klik)
 ├── data/StudentPerformanceFactors.csv
 ├── supabase/schema.sql            # Tabel Postgres untuk mode real-time
@@ -23,15 +24,20 @@ dashboard-siswa/
 
 ## Struktur visualisasi
 
-| Bagian | Isi | Klik → pop-up |
+Navigasi lewat menu di sidebar (bisa ditutup/dibuka dengan tombol « / » di kiri atas). Filter global ada di tombol **Filter** kanan atas.
+Setiap grafik: sumbu berjudul + satuan, label tidak bertumpuk, tombol unduh PNG muncul saat kursor di atas grafik.
+
+| Halaman | Isi | Interaksi |
 |---|---|---|
-| **KPI** | Jumlah siswa, rata-rata nilai, % ≥70, kehadiran, jam belajar (dengan selisih vs semua data saat difilter) | – |
-| **Filter** (tombol Filter di kanan atas) | Jenis sekolah, gender, pendapatan, motivasi, rentang jam belajar & kehadiran | – |
-| **Ringkasan** | Sebaran nilai · Temuan utama (dihitung ulang otomatis) · Peringkat pengaruh 19 faktor | Batang nilai → profil siswa bernilai itu · Batang faktor → detail faktor |
-| **Eksplorasi faktor** | Pilih kelompok (Akademik / Keluarga & Lingkungan / Personal) → pilih faktor → rata-rata + interval kepercayaan 95% | Titik → profil kelompok (KPI, distribusi vs semua, profil numerik, ciri menonjol, daftar siswa) |
-| **Kombinasi faktor** | Heatmap dua faktor numerik pilihan | Sel → profil irisan kelompok |
-| **Profil siswa** | Scatter seluruh siswa + cari ID | Titik → profil individu (persentil, faktor pendukung/penghambat, semua atribut) |
-| **Data** | Tabel lengkap + unduh CSV | Baris → profil siswa |
+| **Ringkasan** | KPI · sebaran nilai · peringkat pengaruh 19 faktor · tabel kelompok terbaik · temuan utama otomatis | Klik batang nilai / faktor → pop-up detail |
+| **Eksplorasi faktor** | Rata-rata nilai per kelompok + interval kepercayaan 95% · tabel & interpretasi | Klik titik → profil kelompok |
+| **Kombinasi faktor** | Heatmap dua faktor numerik pilihan · kombinasi terbaik/terendah | Klik sel → profil irisan |
+| **Bandingkan kelompok** *(baru)* | Definisikan kelompok A & B sendiri → KPI berdampingan, uji signifikansi (Welch) & ukuran efek, sebaran nilai, profil kebiasaan, komposisi | Atur kriteria, hasil langsung berubah |
+| **Simulasi nilai** *(baru)* | Model regresi (R² 0,73, meleset ±0,5 poin) → prediksi nilai, rentang 95%, peluang ≥70, rekomendasi paling berdampak, kontribusi tiap faktor | Ubah slider/pilihan, muat profil siswa via ID |
+| **Profil siswa** | Scatter seluruh siswa (sumbu & warna bisa dipilih) + cari ID | Klik titik → profil individu → tombol "Simulasikan perubahan" |
+| **Data** | Tabel lengkap + statistik deskriptif + unduh CSV | Centang baris → profil siswa |
+
+Tampilan responsif: kartu dan kolom otomatis turun ke bawah pada layar sempit / saat di-zoom, tabel lebar bisa digeser horizontal, sidebar otomatis tertutup di ponsel.
 
 ### Insight dari data
 1. **Kehadiran adalah faktor terkuat** (r = 0,58): hadir 91–100% → rata-rata 70,2 vs 60–70% → 64,3.
